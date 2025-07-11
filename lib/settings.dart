@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 class SettingScreen extends StatefulWidget {
+
   const SettingScreen({super.key});
 
   @override
