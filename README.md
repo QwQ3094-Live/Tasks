@@ -22,4 +22,4 @@ This project uses Termux & Flutter to develop, github actions to release, a full
 Termux-Flutter 3.32.6, Gradle 8.14.3, JDK 21.
 
 Thanks to https://github.com/mumumusuc/termux-flutter.
-Fork https://github.com/QwQ3094-Live/termux-flutter.(version supports 3.32.6)
+Fork https://github.com/QwQ3094-Live/termux-flutter. (version supports 3.32.6)
