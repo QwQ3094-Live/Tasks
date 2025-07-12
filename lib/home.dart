@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart';
-import 'settings.dart';
+
+class Task {
+  final String name;
+  final String desc;
+
+  const Task({required this.name, required this.desc});
+}
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -9,40 +15,51 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int _counter = 0;
-  bool _isSwitched = false;
+  final nameController = TextEditingController();
+  final descController = TextEditingController();
+  List<Task> list = [];
 
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
-
-  void _toggleSwitch(bool value) {
-    setState(() {
-      _isSwitched = value;
-    });
-  }
-  
-  void _showTestDialog(BuildContext context) {
+  void _showTaskDialog() {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text("Flutter"),
-          content: Text("欢迎来到Flutter开发，yeah!!!!"),
+          title: const Text('添加你的任务'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              TextField(
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: '名字',
+                ),
+                controller: nameController,
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: '内容',
+                ),
+                controller: descController,
+              ),
+            ],
+          ),
           actions: <Widget>[
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text("取消"),
+              child: const Text('取消'),
             ),
             TextButton(
               onPressed: () {
+                _onConfirm(name: nameController.text, desc: descController.text);
+                nameController.clear();
+                descController.clear();
                 Navigator.of(context).pop();
               },
-              child: Text("确定"),
+              child: const Text('确定'),
             ),
           ],
         );
@@ -50,49 +67,37 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  void _onConfirm({required String name, required String desc}) {
+    final Task t = Task(name: name, desc: desc);
+    setState(() {
+      list.add(t);
+    });
+  }
+
+  List<Widget> _getTiles() {
+    List<Widget> tiles = [];
+    for (var i = 0; i < list.length; i++) {
+      Task it = list[i];
+      tiles.add(ListTile(
+        title: Text(it.name),
+        subtitle: Text(it.desc),
+      ));
+    }
+    return tiles;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Home'),
+        title: const Text('Home'),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text('你按下按钮这些次了:'),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-            const SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text('Switch is ${_isSwitched ? 'ON' : 'OFF'}'),
-                const SizedBox(width: 10),
-                Column(
-                  children: [
-                    Switch(
-                      value: _isSwitched,
-                      onChanged: _toggleSwitch,
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            FilledButton(
-              child: const Text('flutter'),
-              onPressed: () {
-                _showTestDialog(context);
-              },
-            ),
-          ],
-        ),
+      body: ListView(
+        children: _getTiles(),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
+        onPressed: _showTaskDialog,
+        tooltip: 'Add',
         child: const Icon(Icons.add),
       ),
     );
