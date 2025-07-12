@@ -8,15 +8,16 @@ plugins {
 android {
     namespace = "com.example.task"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+    ndkVersion = "27.1.12297006"  
+    buildToolsVersion = "35.0.0"
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_21
-        targetCompatibility JavaVersion.VERSION_21
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
     }
 
     kotlinOptions {
-        jvmTarget = '21'
+        jvmTarget = JavaVersion.VERSION_21.toString()
     }
 
     defaultConfig {

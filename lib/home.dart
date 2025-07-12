@@ -38,7 +38,7 @@ class _HomeScreenState extends State<HomeScreen> {
               },
               child: Text("取消"),
             ),
-            FilledButton(
+            TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
               },
@@ -77,18 +77,6 @@ class _HomeScreenState extends State<HomeScreen> {
                       value: _isSwitched,
                       onChanged: _toggleSwitch,
                     ),
-                    Switch(
-                      value: _isSwitched,
-                      onChanged: _toggleSwitch,
-                    ),
-                    Switch(
-                      value: _isSwitched,
-                      onChanged: _toggleSwitch,
-                    ),
-                    Switch(
-                      value: _isSwitched,
-                      onChanged: _toggleSwitch,
-                    ),
                   ],
                 ),
               ],
@@ -97,17 +85,6 @@ class _HomeScreenState extends State<HomeScreen> {
               child: const Text('flutter'),
               onPressed: () {
                 _showTestDialog(context);
-              },
-            ),
-            const SizedBox(height: 10),
-            FilledButton(
-              child: const Text('settings'),
-              onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => const SettingScreen(),
-                  ),
-                );
               },
             ),
           ],
