@@ -1,10 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 
 class Task {
   final String name;
   final String desc;
 
   const Task({required this.name, required this.desc});
+
+  // 将Task转换为Map
+  Map<String, dynamic> toMap() {
+    return {
+      'name': name,
+      'desc': desc,
+    };
+  }
+
+  // 从Map创建Task
+  factory Task.fromMap(Map<String, dynamic> map) {
+    return Task(
+      name: map['name'],
+      desc: map['desc'],
+    );
+  }
 }
 
 class HomeScreen extends StatefulWidget {
@@ -18,6 +36,34 @@ class _HomeScreenState extends State<HomeScreen> {
   final nameController = TextEditingController();
   final descController = TextEditingController();
   List<Task> list = [];
+  
+  @override
+  void initState() {
+    super.initState();
+    _loadTasks(); // 初始化时加载保存的任务
+  }
+
+  // 保存任务列表到本地存储
+  Future<void> _saveTasks() async {
+    final prefs = await SharedPreferences.getInstance();
+    // 将List<Task>转换为List<Map>然后转为JSON字符串
+    final String encodedData = json.encode(
+      list.map((task) => task.toMap()).toList(),
+    );
+    await prefs.setString('tasks', encodedData);
+  }
+
+  // 从本地存储加载任务列表
+  Future<void> _loadTasks() async {
+    final prefs = await SharedPreferences.getInstance();
+    final String? encodedData = prefs.getString('tasks');
+    if (encodedData != null) {
+      final List<dynamic> decodedData = json.decode(encodedData);
+      setState(() {
+        list = decodedData.map((item) => Task.fromMap(item)).toList();
+      });
+    }
+  }
 
   void _showTaskDialog() {
     showDialog(
@@ -68,36 +114,69 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _onConfirm({required String name, required String desc}) {
+    if (name.isEmpty) return; // 简单验证
+    
     final Task t = Task(name: name, desc: desc);
     setState(() {
       list.add(t);
     });
+    _saveTasks(); // 每次添加后保存
+  }
+
+  // 删除任务
+  void _deleteTask(int index) {
+    setState(() {
+      list.removeAt(index);
+    });
+    _saveTasks(); // 删除后保存
   }
 
   List<Widget> _getTiles() {
-    List<Widget> tiles = [];
-    for (var i = 0; i < list.length; i++) {
-      Task it = list[i];
-      tiles.add(ListTile(
-        title: Text(it.name),
-        subtitle: Text(it.desc),
-      ));
-    }
-    return tiles;
+    return List<Widget>.generate(list.length, (index) {
+      final task = list[index];
+      return Dismissible(
+        key: Key('$index-${task.name}'), // 唯一key
+        direction: DismissDirection.endToStart,
+        background: Container(
+          color: Colors.red,
+          alignment: Alignment.centerRight,
+          padding: const EdgeInsets.only(right: 20),
+          child: const Icon(Icons.delete, color: Colors.white),
+        ),
+        onDismissed: (direction) => _deleteTask(index),
+        child: ListTile(
+          title: Text(task.name),
+          subtitle: Text(task.desc),
+        ),
+      );
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Home'),
+        title: const Text('任务列表'),
+        actions: [
+          if (list.isNotEmpty)
+            IconButton(
+              icon: const Icon(Icons.delete_forever),
+              onPressed: () {
+                setState(() {
+                  list.clear();
+                });
+                _saveTasks(); // 清空后保存
+              },
+              tooltip: '清空所有',
+            )
+        ],
       ),
-      body: ListView(
-        children: _getTiles(),
-      ),
+      body: list.isEmpty
+          ? const Center(child: Text('暂无任务，点击右下角添加'))
+          : ListView(children: _getTiles()),
       floatingActionButton: FloatingActionButton(
         onPressed: _showTaskDialog,
-        tooltip: 'Add',
+        tooltip: '添加任务',
         child: const Icon(Icons.add),
       ),
     );
