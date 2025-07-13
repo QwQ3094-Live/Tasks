@@ -112,6 +112,39 @@ class _HomeScreenState extends State<HomeScreen> {
       },
     );
   }
+  
+  void _showDeleteDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('删除任务'),
+          content: const Text('你确定要删除吗？'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('取消'),
+            ),
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  list.clear();
+                });
+                _saveTasks();
+                Navigator.of(context).pop();
+              },
+              child: Text(
+                '确定',
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   void _onConfirm({required String name, required String desc}) {
     if (name.isEmpty) return; // 简单验证
@@ -162,10 +195,7 @@ class _HomeScreenState extends State<HomeScreen> {
             IconButton(
               icon: const Icon(Icons.delete_forever),
               onPressed: () {
-                setState(() {
-                  list.clear();
-                });
-                _saveTasks(); // 清空后保存
+                 _showDeleteDialog();
               },
               tooltip: '清空所有',
             )
